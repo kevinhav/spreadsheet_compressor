@@ -124,7 +124,7 @@ class CompressionOutputFormatter:
             json.dump(output_dict, f, indent=2, ensure_ascii=False)
 
     def _convert_numpy_types(self, obj):
-        """Recursively convert numpy types to native Python types.
+        """Recursively convert numpy types and other non-serializable types to native Python types.
 
         Args:
             obj: Object to convert
@@ -142,21 +142,31 @@ class CompressionOutputFormatter:
             return obj.item()
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
-        else:
+        elif isinstance(obj, (str, int, float, bool, type(None))):
             return obj
+        else:
+            # Handle any other non-JSON-serializable types (ArrayFormula, etc.)
+            try:
+                json.dumps(obj)
+                return obj
+            except (TypeError, ValueError):
+                return str(obj)
 
     def _convert_key(self, key):
-        """Convert dict keys to strings if they're numpy types.
+        """Convert dict keys to strings if they're numpy types or other non-serializable types.
 
         Args:
             key: Dictionary key
 
         Returns:
-            Converted key (string if was numpy type)
+            Converted key (string if needed for JSON serialization)
         """
         import numpy as np
 
         if isinstance(key, (np.integer, np.floating)):
+            return str(key)
+        # Ensure key is JSON-serializable (str, int, float, bool, None)
+        if not isinstance(key, (str, int, float, bool, type(None))):
             return str(key)
         return key
 
