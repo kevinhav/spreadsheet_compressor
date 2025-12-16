@@ -250,20 +250,42 @@ class SheetCompressor:
             else:
                 return dictionary[sheet_value]
 
-        #DFS for checking bounds
+        #DFS for checking bounds (iterative implementation to avoid recursion limit)
         def dfs(r, c, val_type):
-            match = replace_nan(sheet.iloc[r, c])
-            if visited[r][c] or val_type != match:
-                return [r, c, r - 1, c - 1]
-            visited[r][c] = True
-            bounds = [r, c, r, c]
-            for i in [[r - 1, c], [r, c - 1], [r + 1, c], [r, c + 1]]:
-                if (i[0] < 0) or (i[1] < 0) or (i[0] >= len(sheet)) or (i[1] >= len(sheet.columns)):
+            stack = [(r, c)]
+            bounds = [r, c, r, c]  # [min_row, min_col, max_row, max_col]
+
+            while stack:
+                curr_r, curr_c = stack.pop()
+
+                # Skip if already visited
+                if visited[curr_r][curr_c]:
                     continue
-                match = replace_nan(sheet.iloc[i[0], i[1]])
-                if not visited[i[0]][i[1]] and val_type == match:
-                    new_bounds = dfs(i[0], i[1], val_type)
-                    bounds = [min(new_bounds[0], bounds[0]), min(new_bounds[1], bounds[1]), max(new_bounds[2], bounds[2]), max(new_bounds[3], bounds[3])]
+
+                # Skip if type doesn't match
+                match = replace_nan(sheet.iloc[curr_r, curr_c])
+                if val_type != match:
+                    continue
+
+                # Mark as visited
+                visited[curr_r][curr_c] = True
+
+                # Update bounds
+                bounds[0] = min(bounds[0], curr_r)
+                bounds[1] = min(bounds[1], curr_c)
+                bounds[2] = max(bounds[2], curr_r)
+                bounds[3] = max(bounds[3], curr_c)
+
+                # Add valid neighbors to stack
+                for next_r, next_c in [[curr_r - 1, curr_c], [curr_r, curr_c - 1],
+                                       [curr_r + 1, curr_c], [curr_r, curr_c + 1]]:
+                    if (0 <= next_r < len(sheet) and
+                        0 <= next_c < len(sheet.columns) and
+                        not visited[next_r][next_c]):
+                        neighbor_match = replace_nan(sheet.iloc[next_r, next_c])
+                        if val_type == neighbor_match:
+                            stack.append((next_r, next_c))
+
             return bounds
 
         m = len(sheet)
