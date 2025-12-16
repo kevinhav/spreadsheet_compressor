@@ -1,0 +1,281 @@
+{
+  "examples": [
+    {
+      "name": "simple_table",
+      "description": "Single table with headers and numeric data",
+      "input": {
+        "metadata": {
+          "source_file": "sales.xlsx",
+          "original_dimensions": {"rows": 10, "cols": 4},
+          "compressed_dimensions": {"rows": 6, "cols": 4},
+          "compression_ratio": 1.67
+        },
+        "compression_data": {
+          "value_dictionary": {
+            "Year": "A1",
+            "Q1 Sales": "B1",
+            "Q2 Sales": "C1",
+            "Total": "D1",
+            "2022": "A2",
+            "2023": "A3",
+            "2024": "A4",
+            "IntNum": "B2:D4"
+          },
+          "format_regions": [
+            {
+              "region_id": 1,
+              "range": "A1:D1",
+              "format_type": "Other",
+              "bounds": {"top_left": {"row": 0, "col": 0}, "bottom_right": {"row": 0, "col": 3}}
+            },
+            {
+              "region_id": 2,
+              "range": "A2:A4",
+              "format_type": "Integer",
+              "bounds": {"top_left": {"row": 1, "col": 0}, "bottom_right": {"row": 3, "col": 0}}
+            },
+            {
+              "region_id": 3,
+              "range": "B2:D4",
+              "format_type": "Integer",
+              "bounds": {"top_left": {"row": 1, "col": 1}, "bottom_right": {"row": 3, "col": 3}}
+            }
+          ],
+          "anchor_points": {
+            "rows": [0, 1, 2, 3, 4],
+            "columns": [0, 1, 2, 3]
+          }
+        }
+      },
+      "expected_output": {
+        "tables": [
+          {
+            "table_id": 1,
+            "range": "A1:D4",
+            "description": "Quarterly sales data by year",
+            "headers": ["Year", "Q1 Sales", "Q2 Sales", "Total"],
+            "data": [
+              {"Year": 2022, "Q1 Sales": "[numeric]", "Q2 Sales": "[numeric]", "Total": "[numeric]"},
+              {"Year": 2023, "Q1 Sales": "[numeric]", "Q2 Sales": "[numeric]", "Total": "[numeric]"},
+              {"Year": 2024, "Q1 Sales": "[numeric]", "Q2 Sales": "[numeric]", "Total": "[numeric]"}
+            ],
+            "metadata": {
+              "num_rows": 3,
+              "num_cols": 4,
+              "data_types": {
+                "Year": "Integer",
+                "Q1 Sales": "Integer",
+                "Q2 Sales": "Integer",
+                "Total": "Integer"
+              }
+            }
+          }
+        ]
+      },
+      "explanation": "This is a basic table with one header row and three data rows. The value_dictionary shows specific values for Year column and compressed 'IntNum' for the sales data. All columns contain integers as indicated by format_regions."
+    },
+    {
+      "name": "multi_table",
+      "description": "Two separate tables in the same sheet",
+      "input": {
+        "metadata": {
+          "source_file": "financial_report.xlsx",
+          "original_dimensions": {"rows": 20, "cols": 5},
+          "compressed_dimensions": {"rows": 12, "cols": 5},
+          "compression_ratio": 1.67
+        },
+        "compression_data": {
+          "value_dictionary": {
+            "Month": "A1",
+            "Revenue": "B1",
+            "Expenses": "C1",
+            "January": "A2",
+            "February": "A3",
+            "Product": "A8",
+            "Units Sold": "B8",
+            "Price": "C8",
+            "Widget A": "A9",
+            "Widget B": "A10",
+            "FloatNum": "B2:C3,B9:C10"
+          },
+          "format_regions": [
+            {
+              "region_id": 1,
+              "range": "A1:C1",
+              "format_type": "Other",
+              "bounds": {"top_left": {"row": 0, "col": 0}, "bottom_right": {"row": 0, "col": 2}}
+            },
+            {
+              "region_id": 2,
+              "range": "A2:A3",
+              "format_type": "Other",
+              "bounds": {"top_left": {"row": 1, "col": 0}, "bottom_right": {"row": 2, "col": 0}}
+            },
+            {
+              "region_id": 3,
+              "range": "B2:C3",
+              "format_type": "Currency",
+              "bounds": {"top_left": {"row": 1, "col": 1}, "bottom_right": {"row": 2, "col": 2}}
+            },
+            {
+              "region_id": 4,
+              "range": "A8:C8",
+              "format_type": "Other",
+              "bounds": {"top_left": {"row": 7, "col": 0}, "bottom_right": {"row": 7, "col": 2}}
+            },
+            {
+              "region_id": 5,
+              "range": "A9:A10",
+              "format_type": "Other",
+              "bounds": {"top_left": {"row": 8, "col": 0}, "bottom_right": {"row": 9, "col": 0}}
+            },
+            {
+              "region_id": 6,
+              "range": "B9:C10",
+              "format_type": "Integer",
+              "bounds": {"top_left": {"row": 8, "col": 1}, "bottom_right": {"row": 9, "col": 2}}
+            }
+          ],
+          "anchor_points": {
+            "rows": [0, 1, 2, 3, 7, 8, 9, 10],
+            "columns": [0, 1, 2]
+          }
+        }
+      },
+      "expected_output": {
+        "tables": [
+          {
+            "table_id": 1,
+            "range": "A1:C3",
+            "description": "Monthly revenue and expenses",
+            "headers": ["Month", "Revenue", "Expenses"],
+            "data": [
+              {"Month": "January", "Revenue": "[numeric]", "Expenses": "[numeric]"},
+              {"Month": "February", "Revenue": "[numeric]", "Expenses": "[numeric]"}
+            ],
+            "metadata": {
+              "num_rows": 2,
+              "num_cols": 3,
+              "data_types": {
+                "Month": "Other",
+                "Revenue": "Currency",
+                "Expenses": "Currency"
+              }
+            }
+          },
+          {
+            "table_id": 2,
+            "range": "A8:C10",
+            "description": "Product sales data",
+            "headers": ["Product", "Units Sold", "Price"],
+            "data": [
+              {"Product": "Widget A", "Units Sold": "[numeric]", "Price": "[numeric]"},
+              {"Product": "Widget B", "Units Sold": "[numeric]", "Price": "[numeric]"}
+            ],
+            "metadata": {
+              "num_rows": 2,
+              "num_cols": 3,
+              "data_types": {
+                "Product": "Other",
+                "Units Sold": "Integer",
+                "Price": "Integer"
+              }
+            }
+          }
+        ]
+      },
+      "explanation": "Two distinct tables are separated by empty rows. The gap in anchor_points.rows (3 to 7) indicates separation. Each table has its own headers and data structure. Notice the first table uses Currency format while the second uses Integer format for numeric columns."
+    },
+    {
+      "name": "sparse_layout",
+      "description": "Table with gaps and mixed data types",
+      "input": {
+        "metadata": {
+          "source_file": "schedule.xlsx",
+          "original_dimensions": {"rows": 15, "cols": 6},
+          "compressed_dimensions": {"rows": 8, "cols": 4},
+          "compression_ratio": 1.88
+        },
+        "compression_data": {
+          "value_dictionary": {
+            "Employee": "A1",
+            "Monday": "B1",
+            "Tuesday": "C1",
+            "Status": "D1",
+            "John Doe": "A2",
+            "Jane Smith": "A3",
+            "9:00 AM": "B2",
+            "10:00 AM": "C2:C3",
+            "Active": "D2",
+            "Pending": "D3"
+          },
+          "format_regions": [
+            {
+              "region_id": 1,
+              "range": "A1:D1",
+              "format_type": "Other",
+              "bounds": {"top_left": {"row": 0, "col": 0}, "bottom_right": {"row": 0, "col": 3}}
+            },
+            {
+              "region_id": 2,
+              "range": "A2:A3",
+              "format_type": "Other",
+              "bounds": {"top_left": {"row": 1, "col": 0}, "bottom_right": {"row": 2, "col": 0}}
+            },
+            {
+              "region_id": 3,
+              "range": "B2:C3",
+              "format_type": "Time",
+              "bounds": {"top_left": {"row": 1, "col": 1}, "bottom_right": {"row": 2, "col": 2}}
+            },
+            {
+              "region_id": 4,
+              "range": "D2:D3",
+              "format_type": "Other",
+              "bounds": {"top_left": {"row": 1, "col": 3}, "bottom_right": {"row": 2, "col": 3}}
+            }
+          ],
+          "anchor_points": {
+            "rows": [0, 1, 2, 3],
+            "columns": [0, 1, 2, 3]
+          }
+        }
+      },
+      "expected_output": {
+        "tables": [
+          {
+            "table_id": 1,
+            "range": "A1:D3",
+            "description": "Employee work schedule",
+            "headers": ["Employee", "Monday", "Tuesday", "Status"],
+            "data": [
+              {"Employee": "John Doe", "Monday": "9:00 AM", "Tuesday": "10:00 AM", "Status": "Active"},
+              {"Employee": "Jane Smith", "Monday": null, "Tuesday": "10:00 AM", "Status": "Pending"}
+            ],
+            "metadata": {
+              "num_rows": 2,
+              "num_cols": 4,
+              "data_types": {
+                "Employee": "Other",
+                "Monday": "Time",
+                "Tuesday": "Time",
+                "Status": "Other"
+              }
+            }
+          }
+        ]
+      },
+      "explanation": "This example shows how to handle sparse data (Jane Smith has no Monday time) and mixed data types (text names, time values, status text). Null values are used for missing cells. The Time format_type indicates the columns contain time data."
+    }
+  ],
+  "usage_notes": {
+    "when_to_use": "Pass these examples to the LLM along with the prompt_template.md to help it understand the expected input/output format.",
+    "customization": "You can add more examples specific to your domain (financial reports, scientific data, etc.)",
+    "format_notes": [
+      "The '[numeric]' placeholder indicates compressed numeric values",
+      "Actual cell values may be present in value_dictionary or compressed as IntNum/FloatNum/etc",
+      "Format_regions provide critical type information even when values are compressed",
+      "Anchor_points help identify table boundaries and important rows/columns"
+    ]
+  }
+}
