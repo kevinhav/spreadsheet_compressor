@@ -189,21 +189,45 @@ class SheetCompressor:
                 return array[0]
             return array[0] + ':' + array[-1]
 
+        #Convert unhashable types to string representation
+        def make_hashable(value):
+            if pd.isna(value):
+                return value
+            # Handle unhashable types (ArrayFormula, etc.) by converting to string
+            try:
+                hash(value)
+                return value
+            except TypeError:
+                return str(value)
+
         dictionary = {}
         for _, i in markdown.iterrows():
-            if i['Value'] in dictionary:
-                dictionary[i['Value']].append(i['Address'])
+            key = make_hashable(i['Value'])
+            if key in dictionary:
+                dictionary[key].append(i['Address'])
             else:
-                dictionary[i['Value']] = [i['Address']]
+                dictionary[key] = [i['Address']]
         dictionary = {k: v for k, v in dictionary.items() if not pd.isna(k)}
         dictionary = {k: combine_cells(v) for k, v in dictionary.items()}
         return dictionary
 
     #Key-Value to Value-Key for categories
     def inverted_category(self, markdown):
+        #Convert unhashable types to string representation
+        def make_hashable(value):
+            if pd.isna(value):
+                return value
+            # Handle unhashable types (ArrayFormula, etc.) by converting to string
+            try:
+                hash(value)
+                return value
+            except TypeError:
+                return str(value)
+
         dictionary = {}
         for _, i in markdown.iterrows():
-                dictionary[i['Value']] = i['Category']
+                key = make_hashable(i['Value'])
+                dictionary[key] = i['Category']
         return dictionary
 
     #Regex to NFS
