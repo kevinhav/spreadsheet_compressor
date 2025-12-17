@@ -111,7 +111,7 @@ class XLSXReader(BaseExcelReader):
         Returns:
             openpyxl Workbook object
         """
-        return openpyxl.load_workbook(filepath, data_only=False)
+        return openpyxl.load_workbook(filepath, data_only=True)
 
     def get_dataframe(self, wb: openpyxl.Workbook, sheet_name: Optional[Union[str, int]] = None) -> pd.DataFrame:
         """Convert openpyxl workbook to DataFrame.

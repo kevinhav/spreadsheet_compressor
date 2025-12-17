@@ -3,6 +3,7 @@
 import json
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
+import pandas as pd
 from .IndexColumnConverter import IndexColumnConverter
 
 
@@ -74,9 +75,7 @@ class CompressionOutputFormatter:
                     'rows': compression_metadata.get('anchor_rows', []),
                     'columns': compression_metadata.get('anchor_columns', [])
                 }
-            },
-            'extraction_instructions': self._get_extraction_instructions(),
-            'tables': []
+            }
         }
 
         return unified_output
@@ -98,16 +97,48 @@ class CompressionOutputFormatter:
             return tl_addr
         return f"{tl_addr}:{br_addr}"
 
-    def _get_extraction_instructions(self) -> Dict:
-        """Embed minimal extraction guidance in output.
+    def _convert_markdown_to_encoded_data(self, markdown: pd.DataFrame) -> List[Dict]:
+        """Convert markdown DataFrame to encoded data list.
+
+        Args:
+            markdown: DataFrame with Address, Value, Format, Category columns
 
         Returns:
-            Dict with extraction task information
+            List of cell objects with address, value, format, category
+        """
+        if markdown is None or markdown.empty:
+            return []
+
+        encoded_data = []
+        for _, row in markdown.iterrows():
+            cell_obj = {
+                'address': str(row['Address']),
+                'value': row['Value'],
+                'format': row['Format'][0] if isinstance(row['Format'], list) else row['Format'],
+                'category': row['Category']
+            }
+            encoded_data.append(cell_obj)
+
+        return encoded_data
+
+    def format_encoded_output(self, markdown: pd.DataFrame, filename: str, file_format: str) -> Dict:
+        """Format the encoded cell data as a separate output.
+
+        Args:
+            markdown: DataFrame with Address, Value, Format, Category columns
+            filename: Source file name
+            file_format: File extension
+
+        Returns:
+            Dict with metadata and encoded cell data
         """
         return {
-            'task': 'extract_all_tables',
-            'output_format': 'json_array',
-            'note': 'See prompt_template.md for detailed extraction instructions'
+            'metadata': {
+                'source_file': filename,
+                'file_format': file_format,
+                'data_type': 'encoded_cells'
+            },
+            'cells': self._convert_markdown_to_encoded_data(markdown)
         }
 
     def write_to_file(self, output_dict: Dict, output_path: str):

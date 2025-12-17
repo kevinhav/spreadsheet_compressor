@@ -101,9 +101,9 @@ def compress_excel(
         compressed_size = compressed_dims[0] * compressed_dims[1]
         compression_metadata = compressor.get_compression_metadata(original_size, compressed_size)
 
-        # Step 11: Format as unified JSON output
+        # Step 11: Format as separate compressed and encoded JSON outputs
         formatter = CompressionOutputFormatter()
-        result = formatter.format_unified_output(
+        compressed_output = formatter.format_unified_output(
             filename=filename,
             file_format=file_ext,
             original_dims=original_dims,
@@ -112,6 +112,17 @@ def compress_excel(
             compress_dict=compress_dict,
             compression_metadata=compression_metadata
         )
+
+        encoded_output = formatter.format_encoded_output(
+            markdown=markdown,
+            filename=filename,
+            file_format=file_ext
+        )
+
+        result = {
+            'compressed': compressed_output,
+            'encoded': encoded_output
+        }
 
         # Step 12: Optionally write to file
         if output_file:
